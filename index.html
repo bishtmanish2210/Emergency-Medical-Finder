@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Emergency Medical Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      padding: 30px;
+    }
+    .container {
+      max-width: 650px;
+      margin: auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #c62828;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #c62828;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #a11c1c;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 5px solid #c62828;
+    }
+    .available { color: green; font-weight: bold; }
+    .not-available { color: red; font-weight: bold; }
+    .offline { color: #ff9800; font-weight: bold; }
+    .note {
+      margin-top: 15px;
+      font-size: 14px;
+      background: #fff3e0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🚑 Emergency Medical Finder</h1>
+  <p>
+    A smart system to identify nearby open hospitals and available doctors
+    during emergencies, even in low or no-internet regions.
+  </p>
+
+  <label><b>Select Area Type:</b></label>
+  <select id="area">
+    <option value="urban">Urban Area</option>
+    <option value="semi">Semi-Urban Area</option>
+    <option value="rural">Rural Area</option>
+  </select>
+
+  <label><b>Select Emergency Type:</b></label>
+  <select id="emergency">
+    <option value="general">General Emergency</option>
+    <option value="accident">Accident / Trauma</option>
+    <option value="heart">Heart Emergency</option>
+    <option value="maternity">Maternity Emergency</option>
+  </select>
+
+  <button onclick="findHelp()">Find Medical Help</button>
+
+  <div class="result" id="output"></div>
+</div>
+
+<script>
+function findHelp() {
+  let area = document.getElementById("area").value;
+  let emergency = document.getElementById("emergency").value;
+  let output = document.getElementById("output");
+
+  let emergencyText = emergency.replace(/^\w/, c => c.toUpperCase());
+
+  if (area === "urban") {
+    output.innerHTML = `
+      <h3>${emergencyText} – Available Facilities</h3>
+      <p class="available">✔ City Care Hospital – Emergency Doctor Available</p>
+      <p class="available">✔ LifeLine Hospital – Specialist On Duty</p>
+      <p class="not-available">❌ Metro Clinic – Doctor Not Available</p>
+      <div class="note">
+        This reduces emergency time loss by showing availability before hospital visits.
+      </div>
+    `;
+  }
+  else if (area === "semi") {
+    output.innerHTML = `
+      <h3>${emergencyText} – Available Facilities</h3>
+      <p class="available">✔ District Hospital – Emergency Services Active</p>
+      <p class="offline">⚠ Community Health Center – Offline Data (Last Synced)</p>
+      <p class="not-available">❌ Private Clinic – Closed</p>
+      <div class="note">
+        Offline-first approach helps semi-urban regions with unstable internet.
+      </div>
+    `;
+  }
+  else {
+    output.innerHTML = `
+      <h3>${emergencyText} – Available Facilities</h3>
+      <p class="offline">⚠ Primary Health Center – Offline Data Available</p>
+      <p class="offline">⚠ Rural Medical Unit – Limited Emergency Support</p>
+      <p class="not-available">❌ Local Clinic – Doctor Not Available</p>
+      <div class="note">
+        In rural areas, last synced data helps patients make faster decisions.
+      </div>
+    `;
+  }
+}
+</script>
+
+</body>
+</html>
