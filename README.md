@@ -49,3 +49,16 @@ A basic HTML and JavaScript based prototype has been developed to demonstrate th
 - Periodic data sync from hospitals and clinics
 - GPS-based automatic location detection
 - Integration with ambulance and emergency services
+
+
+
+# Round 2 – Infrastructure-Level Design
+
+This phase focuses on transforming the initial problem
+solution into a launch-ready, scalable, and fault-tolerant
+system. The design emphasizes reliability under emergency
+conditions, graceful degradation during failures, and
+scalability during sudden usage surges.
+
+The solution is approached as public-safety infrastructure
+rather than a feature-driven application.
