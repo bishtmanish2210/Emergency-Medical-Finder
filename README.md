@@ -7,6 +7,7 @@ This problem becomes more severe during night hours, holidays, and in rural and 
 
 Different hospitals and clinics follow different schedules, and doctor availability data is not centralized on a single platform. Due to the absence of a reliable and accessible system—especially in low-connectivity areas—patients and attendants are forced to rely on guesswork or visit multiple hospitals. This leads to confusion, delays, stress, and poor decision-making during critical moments, which can severely impact patient outcomes and, in extreme cases, may become life-threatenin
 
+The problem is not lack of hospitals, but lack of reliable availability information at the moment it is needed
 
 # Proposed Solution
 Emergency Medical Finder is a centralized medical availability platform designed to help users quickly identify nearby open hospitals and available doctors during emergencies.
