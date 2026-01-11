@@ -1,129 +1,257 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Emergency Medical Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
+    :root {
+      --danger: #c62828;
+      --danger-dark: #a11c1c;
+      --success: #2e7d32;
+      --warning: #ff9800;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text-muted: #666;
+    }
+
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f4f6f8;
-      padding: 30px;
+      background: var(--bg);
     }
+
     .container {
-      max-width: 650px;
+      max-width: 700px;
       margin: auto;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      padding: 20px;
     }
+
     h1 {
-      color: #c62828;
+      color: var(--danger);
+      margin-bottom: 10px;
     }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 12px;
+
+    .location-bar {
+      background: #fff3e0;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .location-status {
+      font-weight: bold;
+    }
+
+    .manual-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .emergency-types {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .emergency-btn {
+      padding: 16px;
+      border-radius: 10px;
+      border: none;
       font-size: 16px;
+      cursor: pointer;
+      background: var(--card);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease;
     }
-    button {
-      background-color: #c62828;
-      color: white;
+
+    .emergency-btn:active {
+      transform: scale(0.97);
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .loading {
+      font-weight: bold;
+      opacity: 0.7;
+      animation: pulse 1s infinite;
+    }
+
+    .hospital-card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    .hospital-header {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .status {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .available { color: var(--success); }
+    .offline { color: var(--warning); }
+    .not-available { color: var(--danger); }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
       border: none;
       cursor: pointer;
-      border-radius: 4px;
+      font-weight: bold;
     }
-    button:hover {
-      background-color: #a11c1c;
-    }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-left: 5px solid #c62828;
-    }
-    .available { color: green; font-weight: bold; }
-    .not-available { color: red; font-weight: bold; }
-    .offline { color: #ff9800; font-weight: bold; }
-    .note {
-      margin-top: 15px;
+
+    .call { background: #e8f5e9; color: var(--success); }
+    .sos { background: #ffebee; color: var(--danger); }
+    .info { background: #e3f2fd; color: #1565c0; }
+
+    .info-panel {
       font-size: 14px;
-      background: #fff3e0;
-      padding: 10px;
-      border-radius: 5px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      display: none;
+    }
+
+    .sos-global {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--danger);
+      color: white;
+      padding: 14px 30px;
+      border-radius: 30px;
+      font-size: 18px;
+      border: none;
+      box-shadow: 0 10px 25px rgba(198,40,40,0.5);
+      cursor: pointer;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.4; }
     }
   </style>
 </head>
+
 <body>
 
 <div class="container">
   <h1>🚑 Emergency Medical Finder</h1>
-  <p>
-    A smart system to identify nearby open hospitals and available doctors
-    during emergencies, even in low or no-internet regions.
-  </p>
 
-  <label><b>Select Area Type:</b></label>
-  <select id="area">
-    <option value="urban">Urban Area</option>
-    <option value="semi">Semi-Urban Area</option>
-    <option value="rural">Rural Area</option>
-  </select>
+  <div class="location-bar">
+    <div>
+      📍 Location detected:
+      <span class="location-status" id="location">Detecting…</span>
+    </div>
+    <button class="manual-btn" onclick="manualLocation()">Change</button>
+  </div>
 
-  <label><b>Select Emergency Type:</b></label>
-  <select id="emergency">
-    <option value="general">General Emergency</option>
-    <option value="accident">Accident / Trauma</option>
-    <option value="heart">Heart Emergency</option>
-    <option value="maternity">Maternity Emergency</option>
-  </select>
+  <p><b>Select emergency type:</b></p>
 
-  <button onclick="findHelp()">Find Medical Help</button>
+  <div class="emergency-types">
+    <button class="emergency-btn" onclick="findHelp('General')">🩺 General</button>
+    <button class="emergency-btn" onclick="findHelp('Accident')">🚗 Accident</button>
+    <button class="emergency-btn" onclick="findHelp('Heart')">🫀 Heart</button>
+    <button class="emergency-btn" onclick="findHelp('Maternity')">🤰 Maternity</button>
+  </div>
 
-  <div class="result" id="output"></div>
+  <div class="results" id="results" aria-live="polite">
+    <p>Select an emergency to locate nearby help.</p>
+  </div>
 </div>
 
+<button class="sos-global" onclick="globalSOS()">🚨 SOS</button>
+
 <script>
-function findHelp() {
-  let area = document.getElementById("area").value;
-  let emergency = document.getElementById("emergency").value;
-  let output = document.getElementById("output");
+  const locationEl = document.getElementById("location");
+  const results = document.getElementById("results");
 
-  let emergencyText = emergency.replace(/^\w/, c => c.toUpperCase());
+  setTimeout(() => {
+    locationEl.textContent = "Semi-Urban Area (Network Based)";
+  }, 1200);
 
-  if (area === "urban") {
-    output.innerHTML = `
-      <h3>${emergencyText} – Available Facilities</h3>
-      <p class="available">✔ City Care Hospital – Emergency Doctor Available</p>
-      <p class="available">✔ LifeLine Hospital – Specialist On Duty</p>
-      <p class="not-available">❌ Metro Clinic – Doctor Not Available</p>
-      <div class="note">
-        This reduces emergency time loss by showing availability before hospital visits.
-      </div>
-    `;
+  function manualLocation() {
+    const choice = prompt("Enter area: Urban / Semi-Urban / Rural");
+    if (choice) locationEl.textContent = choice;
   }
-  else if (area === "semi") {
-    output.innerHTML = `
-      <h3>${emergencyText} – Available Facilities</h3>
-      <p class="available">✔ District Hospital – Emergency Services Active</p>
-      <p class="offline">⚠ Community Health Center – Offline Data (Last Synced)</p>
-      <p class="not-available">❌ Private Clinic – Closed</p>
-      <div class="note">
-        Offline-first approach helps semi-urban regions with unstable internet.
-      </div>
-    `;
+
+  function findHelp(type) {
+    results.innerHTML = `<p class="loading">Finding ${type} emergency facilities near you…</p>`;
+
+    setTimeout(() => {
+      results.innerHTML = `
+        <div class="hospital-card">
+          <div class="hospital-header">City Care Hospital</div>
+          <div class="status available">✔ Doctor Available</div>
+          <div class="actions">
+            <button class="action-btn call">📞 Call</button>
+            <button class="action-btn sos">🚨 SOS</button>
+            <button class="action-btn info" onclick="toggleInfo(this)">ℹ️ Info</button>
+          </div>
+          <div class="info-panel">
+            Distance: ~2.4 km<br>
+            Services: Emergency, ICU<br>
+            Last Sync: 5 mins ago
+          </div>
+        </div>
+
+        <div class="hospital-card">
+          <div class="hospital-header">District Hospital</div>
+          <div class="status offline">⚠ Offline Data Available</div>
+          <div class="actions">
+            <button class="action-btn call">📞 Call</button>
+            <button class="action-btn sos">🚨 SOS</button>
+            <button class="action-btn info" onclick="toggleInfo(this)">ℹ️ Info</button>
+          </div>
+          <div class="info-panel">
+            Distance: ~6.8 km<br>
+            Services: Trauma, Maternity<br>
+            Last Sync: 18 mins ago
+          </div>
+        </div>
+      `;
+    }, 500);
   }
-  else {
-    output.innerHTML = `
-      <h3>${emergencyText} – Available Facilities</h3>
-      <p class="offline">⚠ Primary Health Center – Offline Data Available</p>
-      <p class="offline">⚠ Rural Medical Unit – Limited Emergency Support</p>
-      <p class="not-available">❌ Local Clinic – Doctor Not Available</p>
-      <div class="note">
-        In rural areas, last synced data helps patients make faster decisions.
-      </div>
-    `;
+
+  function toggleInfo(btn) {
+    const panel = btn.parentElement.nextElementSibling;
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
   }
-}
+
+  function globalSOS() {
+    alert("🚨 Connecting to nearest emergency services…");
+  }
 </script>
 
 </body>
